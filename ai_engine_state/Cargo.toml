@@ -1,0 +1,23 @@
+[package]
+name = "ai_engine_state"
+version = "0.1.0"
+edition = "2024"
+authors = ["Radim Közl"]
+description = "High-performance AI Engine & Async Systems in Rust"
+
+[dependencies]
+anyhow = "1.0.104"
+axum = "0.8.9"
+image = "0.25.10"
+rayon = "1.12.0"
+reqwest = { version = "0.13.4", features = ["json"] }
+serde = { version = "1.0.229", features = ["derive"] }
+serde_json = "1.0.151"
+thiserror = "2.0.20"
+tokio = { version = "1.53.1", features = ["full"] }
+
+[profile.release]
+opt-level = 3        # Maximum speed optimization
+lto = true           # Link-Time Optimization (links and optimizes the entire code)
+codegen-units = 1    # Slow build, but generates the fastest machine code
+panic = "abort"      # Remove stack unwinding during panic = smaller and faster binary
