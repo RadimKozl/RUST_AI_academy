@@ -1,0 +1,7 @@
+[package]
+name = "ndarray_from_existing_data_l04"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+ndarray = "0.17.2"

@@ -1,0 +1,9 @@
+[package]
+name = "ndarray_statistics_l15"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+ndarray = "0.17.2"
+ndarray-stats = "0.7.0"
+noisy_float = "0.2.1"

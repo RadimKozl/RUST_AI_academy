@@ -1,0 +1,8 @@
+[package]
+name = "ndarray_matrix_and_linear_algebra_l14"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+nalgebra = "0.35.0"
+ndarray = "0.17.2"
