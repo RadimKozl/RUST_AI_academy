@@ -1,0 +1,15 @@
+[package]
+name = "ndarray_polynomials_l21"
+version = "0.1.0"
+edition = "2024"
+
+[lib]
+name = "ndarray_polynomials_l21"
+path = "src/lib.rs"
+
+[[bin]]
+name = "ndarray_polynomials_cli"
+path = "src/main.rs"
+
+[dependencies]
+ndarray = "0.17.2"

@@ -1,0 +1,16 @@
+[package]
+name = "ndarray_datetime_timeseries_l23"
+version = "0.1.0"
+edition = "2024"
+
+[lib]
+name = "ndarray_datetime_timeseries_l23"
+path = "src/lib.rs"
+
+[[bin]]
+name = "ndarray_datetime_cli"
+path = "src/main.rs"
+
+[dependencies]
+chrono = { version = "0.4", features = ["serde"] }
+ndarray = "0.17.2"

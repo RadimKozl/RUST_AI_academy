@@ -1,0 +1,9 @@
+[package]
+name = "ndarray_fourier_transforms_l20"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+ndarray = "0.17.2"
+num-complex = "0.4.6"
+rustfft = "6.4.1"

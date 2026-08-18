@@ -1,0 +1,16 @@
+[package]
+name = "ndarray_advanced_statistics_l22"
+version = "0.1.0"
+edition = "2024"
+
+[lib]
+name = "ndarray_advanced_statistics_l22"
+path = "src/lib.rs"
+
+[[bin]]
+name = "ndarray_advanced_statistics_cli"
+path = "src/main.rs"
+
+[dependencies]
+ndarray = "0.17.2"
+ndarray-stats = "0.7.0"
