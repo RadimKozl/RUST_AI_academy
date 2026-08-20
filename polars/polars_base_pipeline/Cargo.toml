@@ -1,0 +1,19 @@
+[package]
+name = "polars_base_pipeline"
+version = "0.1.0"
+edition = "2024"
+
+[lib]
+name = "polars_base_pipeline"
+crate-type = ["cdylib", "rlib"]
+
+[[bin]]
+name = "polars_base_pipeline_cli"
+path = "src/main.rs"
+
+[dependencies]
+anyhow = "1.0.104"
+polars = {version = "0.55.2", features = ["lazy", "csv", "fmt"]}
+
+[dev-dependencies]
+tempfile = "3.27.0"

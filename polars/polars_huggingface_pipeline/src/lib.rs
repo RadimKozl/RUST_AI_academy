@@ -196,4 +196,4 @@ pub async fn download_model_files(repo_id: &str) -> Result<PathBuf> {
         .context("Failed to download model config")?;
 
     Ok(path)
-}
+} 
