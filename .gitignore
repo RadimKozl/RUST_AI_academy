@@ -22,3 +22,4 @@ target
 #.idea/
 
 /polars/polars_huggingface_pipeline/huggingface_dataset
+/polars/datasets/
