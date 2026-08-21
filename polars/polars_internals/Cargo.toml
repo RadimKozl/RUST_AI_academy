@@ -1,0 +1,16 @@
+[package]
+name = "polars_internals"
+version = "0.1.0"
+edition = "2024"
+
+[lib]
+name = "polars_internals"
+crate-type = ["cdylib", "rlib"]
+
+[[bin]]
+name = "polars_internals_cli"
+path = "src/main.rs"
+
+[dependencies]
+anyhow = "1.0.104"
+polars = { version = "0.55.2", features = ["lazy", "parquet", "json", "temporal", "fmt"] }
