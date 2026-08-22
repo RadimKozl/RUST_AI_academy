@@ -1,0 +1,28 @@
+[package]
+name = "polars_streaming_pipeline"
+version = "0.1.0"
+edition = "2024"
+
+[lib]
+name = "polars_streaming_pipeline"
+crate-type = ["cdylib", "rlib"]
+
+[[bin]]
+name = "polars_streaming_pipeline_cli"
+path = "src/main.rs"
+
+[dependencies]
+tokio = { version = "1.53.1", features = ["full"] }
+tokio-tungstenite = { version ="0.30.0", features = ["connect", "native-tls"] }
+futures-util = "0.3"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+polars = { version = "0.55.2", features = ["lazy", "sql"] }
+sqlx = { version = "0.8.6", features = ["runtime-tokio-native-tls", "sqlite"] }
+anyhow = "1.0"
+tracing = "0.1"
+tracing-subscriber = "0.3"
+chrono = "0.4.45"
+
+[dev-dependencies]
+tempfile = "3.27.0"
