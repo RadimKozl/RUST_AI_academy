@@ -1,0 +1,27 @@
+[package]
+name = "polars_data_conversion"
+version = "0.1.0"
+edition = "2024"
+
+[lib]
+name = "polars_data_conversion"
+crate-type = ["cdylib", "rlib"]
+
+[[bin]]
+name = "polars_data_conversion_cli"
+path = "src/main.rs"
+
+[dependencies]
+ndarray = "0.17.2"
+tokio = { version = "1.53.1", features = ["full"] }
+tokio-tungstenite = { version ="0.30.0", features = ["connect", "native-tls"] }
+futures-util = "0.3"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+polars = { version = "0.55.2", features = ["lazy", "temporal", "ndarray", "rolling_window", "polars-expr", "parquet"] }
+sqlx = { version = "0.8.6", features = ["runtime-tokio-native-tls", "sqlite"] }
+anyhow = "1.0.104"
+thiserror = "2.0.20"
+
+[dev-dependencies]
+tempfile = "3.27.0"
