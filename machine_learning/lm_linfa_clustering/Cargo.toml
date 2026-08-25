@@ -1,0 +1,29 @@
+[package]
+name = "lm_linfa_clustering"
+version = "0.1.0"
+edition = "2024"
+
+[lib]
+name = "lm_linfa_clustering"
+crate-type = ["rlib"]
+
+[[bin]]
+name = "lm_linfa_clustering_cli"
+path = "src/main.rs"
+
+[dependencies]
+polars = { version = "0.55.2", features = ["lazy", "csv", "parquet"] }
+ndarray = { version = "0.16.1", features = ["serde"] }
+linfa = "0.8.1"
+linfa-clustering = "0.8.1"
+linfa-nn = "0.8.1"
+anyhow = "1.0.104"
+plotters = "0.3.7"
+image = "0.25.5"
+eframe = "0.36.1"
+serde = { version = "1.0", features = ["derive"] }
+bincode = "1.3"
+
+
+[dev-dependencies]
+tempfile = "3.27.0"
