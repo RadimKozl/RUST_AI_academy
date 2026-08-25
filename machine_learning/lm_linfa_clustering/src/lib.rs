@@ -14,7 +14,13 @@ pub struct ClusteringPipeline;
 pub struct DbscanResult {
     pub noise_count: usize,
     pub cluster_counts: Vec<(usize, usize)>,
-    pub silhouette_score: Option<f64>, // Changed from f32 to f64
+    pub silhouette_score: Option<f64>,
+    pub assignments: Vec<Option<usize>>, // Cluster ID for each point
+}
+
+pub struct KMeansResult {
+    pub sample_count: usize,
+    pub assignments: Vec<usize>, // Cluster ID for each point
 }
 
 impl ClusteringPipeline {
@@ -43,7 +49,7 @@ impl ClusteringPipeline {
         Ok(Array2::from_shape_vec((rows, 2), data)?)
     }
 
-    pub fn run_kmeans(records: &Array2<f64>, n_clusters: usize) -> Result<usize> {
+    pub fn run_kmeans(records: &Array2<f64>, n_clusters: usize) -> Result<KMeansResult> {
         let dataset = DatasetBase::from(records.clone());
         let model = KMeans::params(n_clusters)
             .max_n_iterations(300)
@@ -51,7 +57,12 @@ impl ClusteringPipeline {
             .fit(&dataset)?;
 
         let kmeans_dataset = model.predict(dataset);
-        Ok(kmeans_dataset.targets().len())
+        let assignments = kmeans_dataset.targets().to_vec();
+
+        Ok(KMeansResult {
+            sample_count: assignments.len(),
+            assignments,
+        })
     }
 
     pub fn run_dbscan(records: &Array2<f64>, min_points: usize, tolerance: f64) -> Result<DbscanResult> {
@@ -59,6 +70,8 @@ impl ClusteringPipeline {
         let dbscan_memberships = Dbscan::params(min_points)
             .tolerance(tolerance)
             .transform(dataset)?;
+
+        let assignments: Vec<Option<usize>> = dbscan_memberships.targets().to_vec();
 
         let mut label_count_map = dbscan_memberships.label_count().remove(0);
         let noise_count = label_count_map.remove(&None).unwrap_or(0);
@@ -75,6 +88,7 @@ impl ClusteringPipeline {
             noise_count,
             cluster_counts,
             silhouette_score,
+            assignments,
         })
     }
 
@@ -91,12 +105,63 @@ impl ClusteringPipeline {
         Ok(reachability_vec)
     }
 
+    // Plot 2D Scatter Plot for clusters (K-Means or DBSCAN)
+    pub fn render_scatter_plot(
+        records: &Array2<f64>,
+        clusters: &[isize], // Cluster ID for each point (-1 = noise)
+        title: &str,
+        output_file: &Path,
+    ) -> Result<()> {
+        if let Some(parent) = output_file.parent() {
+            std::fs::create_dir_all(parent)?;
+        }
+
+        let root = BitMapBackend::new(output_file, (600, 400)).into_drawing_area();
+        root.fill(&WHITE)?;
+
+        let mut chart = ChartBuilder::on(&root)
+            .caption(title, ("sans-serif", 20).into_font())
+            .margin(15)
+            .x_label_area_size(40)
+            .y_label_area_size(40)
+            .build_cartesian_2d(0.0..140.0, 0.0..100.0)?;
+
+        chart
+            .configure_mesh()
+            .x_desc("Annual Income (k$)")
+            .y_desc("Spending Score (1-100)")
+            .draw()?;
+
+        let colors = [RED, BLUE, GREEN, MAGENTA, CYAN, YELLOW];
+
+        for (i, row) in records.rows().into_iter().enumerate() {
+            let x = row[0];
+            let y = row[1];
+            let cluster_id = clusters[i];
+
+            let color = if cluster_id < 0 {
+                BLACK // Draw noise points in black for DBSCAN
+            } else {
+                colors[(cluster_id as usize) % colors.len()]
+            };
+
+            chart.draw_series(std::iter::once(Circle::new(
+                (x, y),
+                4,
+                ShapeStyle::from(&color).filled(),
+            )))?;
+        }
+
+        root.present()?;
+        Ok(())
+    }
+
     pub fn render_reachability_plot(reachability: &[f64], output_file: &Path) -> Result<()> {
         if let Some(parent) = output_file.parent() {
             std::fs::create_dir_all(parent)?;
         }
 
-        let root = BitMapBackend::new(output_file, (800, 400)).into_drawing_area();
+        let root = BitMapBackend::new(output_file, (600, 400)).into_drawing_area();
         root.fill(&WHITE)?;
 
         let max_y = reachability
@@ -108,15 +173,15 @@ impl ClusteringPipeline {
         let safe_max_y = if max_y > 0.0 { max_y } else { 1.0 };
 
         let mut chart = ChartBuilder::on(&root)
-            .caption("OPTICS Reachability Plot", ("sans-serif", 24).into_font())
+            .caption("OPTICS Reachability Plot", ("sans-serif", 20).into_font())
             .margin(15)
             .x_label_area_size(40)
-            .y_label_area_size(50)
+            .y_label_area_size(40)
             .build_cartesian_2d(0..reachability.len(), 0.0..safe_max_y * 1.05)?;
 
         chart
             .configure_mesh()
-            .x_desc("Index vzorku")
+            .x_desc("Sample Index")
             .y_desc("Reachability Distance")
             .draw()?;
 
