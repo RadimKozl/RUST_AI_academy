@@ -1,0 +1,32 @@
+[package]
+name = "lm_linfa_linear"
+version = "0.1.0"
+edition = "2024"
+
+[lib]
+name = "lm_linfa_linear"
+crate-type = ["rlib"]
+
+[[bin]]
+name = "lm_linfa_linear_cli"
+path = "src/main.rs"
+
+[dependencies]
+polars = { version = "0.55.2", features = ["lazy", "csv", "parquet"] }
+ndarray = { version = "0.16.1", features = ["serde"] }
+linfa = "0.8.1"
+linfa-nn = "0.8.1"
+anyhow = "1.0.104"
+plotters = "0.3.7"
+image = "0.25.10"
+eframe = "0.36.1"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+bincode = "2.0"
+linfa-linear = "0.8.1"
+linfa-datasets = { version = "0.8.1", features = ["diabetes"] }
+
+
+[dev-dependencies]
+tempfile = "3.27.0"
+
