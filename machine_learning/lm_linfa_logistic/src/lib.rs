@@ -18,14 +18,13 @@ pub struct CustomLogisticModel {
 }
 
 impl CustomLogisticModel {
-    /// Manual calculation of the sigmoidal function for probability prediction
     pub fn predict_probabilities(&self, x: &Array2<f64>) -> Array1<f64> {
         let weights = Array1::from_vec(self.params.clone());
-        let z = x.dot(&weights) + self.intercept;
+        // Sign change: Linfa returns coefficients in opposite polarity
+        let z = -(x.dot(&weights) + self.intercept);
         z.mapv(|val| 1.0 / (1.0 + (-val).exp()))
     }
 
-    /// Classification based on threshold 0.5 (true = "good", false = "bad")
     pub fn predict(&self, x: &Array2<f64>) -> Array1<bool> {
         self.predict_probabilities(x).mapv(|prob| prob >= 0.5)
     }
@@ -37,54 +36,80 @@ pub struct ClassificationMetrics {
 }
 
 impl LogisticPipeline {
-    /// Loads the WineQuality dataset and converts scores > 6 to "good" (true) and the rest to "bad" (false)
     pub fn load_and_split_data(
         ratio: f32,
     ) -> (
-        Dataset<f64, bool, ndarray::Dim<[usize; 1]>>,
-        Dataset<f64, bool, ndarray::Dim<[usize; 1]>>,
+        Dataset<f64, usize, ndarray::Dim<[usize; 1]>>,
+        Dataset<f64, usize, ndarray::Dim<[usize; 1]>>,
     ) {
-        let dataset = linfa_datasets::winequality()
-            .map_targets(|x| *x > 6); // Binary target: true = good wine, false = bad
+        // Convert bool target explicitly to usize: 1 = good wine (>6), 0 = others
+        let raw_dataset = linfa_datasets::winequality();
+        let records = raw_dataset.records().to_owned();
+        let targets = raw_dataset.targets().mapv(|x| if x > 6 { 1usize } else { 0usize });
+
+        // Standardization of symptoms (z-score scaling)
+        let mean = records.mean_axis(ndarray::Axis(0)).unwrap();
+        let mut std = records.std_axis(ndarray::Axis(0), 0.0);
+        std.mapv_inplace(|v| if v == 0.0 { 1.0 } else { v });
+
+        let normalized_records = (&records - &mean) / &std;
+        let dataset = Dataset::new(normalized_records, targets);
 
         dataset.split_with_ratio(ratio)
     }
 
-    /// Trains logistic regression
     pub fn train_model(
-        train_data: &Dataset<f64, bool, ndarray::Dim<[usize; 1]>>,
+        train_data: &Dataset<f64, usize, ndarray::Dim<[usize; 1]>>,
     ) -> Result<CustomLogisticModel> {
         let model = LogisticRegression::default()
-            .max_iterations(150)
+            .max_iterations(500)
+            .alpha(0.01)
             .fit(train_data)?;
 
-        // Convert the trained weights into our serializable structure
-        let params = model.params().to_vec();
-        let intercept = model.intercept();
-
-        Ok(CustomLogisticModel { params, intercept })
+        Ok(CustomLogisticModel {
+            params: model.params().to_vec(),
+            intercept: model.intercept(),
+        })
     }
 
-    /// Evaluates the model and returns the Confusion Matrix metrics
     pub fn evaluate(
         model: &CustomLogisticModel,
-        test_data: &Dataset<f64, bool, ndarray::Dim<[usize; 1]>>,
+        test_data: &Dataset<f64, usize, ndarray::Dim<[usize; 1]>>,
     ) -> (Array1<bool>, ClassificationMetrics) {
-        let predictions = model.predict(test_data.records());
-        
-        // We will create a Dataset with predictions for calculating the Confusion Matrix via Linfa
-        let pred_dataset = Dataset::new(test_data.records().clone(), predictions.clone());
-        let cm = pred_dataset.confusion_matrix(test_data).unwrap();
+        let probabilities = model.predict_probabilities(test_data.records());
+        let predictions = probabilities.mapv(|p| p >= 0.5);
+        let targets = test_data.targets();
 
-        let metrics = ClassificationMetrics {
-            accuracy: cm.accuracy(),
-            mcc: cm.mcc(),
+        let mut tp = 0;
+        let mut tn = 0;
+        let mut fp = 0;
+        let mut fn_val = 0;
+
+        for (pred, &target) in predictions.iter().zip(targets.iter()) {
+            let target_bool = target == 1;
+            match (pred, target_bool) {
+                (true, true) => tp += 1,
+                (false, false) => tn += 1,
+                (true, false) => fp += 1,
+                (false, true) => fn_val += 1,
+            }
+        }
+
+        let total = (tp + tn + fp + fn_val) as f32;
+        let accuracy = (tp + tn) as f32 / total;
+
+        let numerator = (tp * tn) as f64 - (fp * fn_val) as f64;
+        let denominator = (((tp + fp) * (tp + fn_val) * (tn + fp) * (tn + fn_val)) as f64).sqrt();
+
+        let mcc = if denominator == 0.0 {
+            0.0
+        } else {
+            (numerator / denominator) as f32
         };
 
-        (predictions, metrics)
+        (predictions, ClassificationMetrics { accuracy, mcc })
     }
 
-    /// Saves model parameters to JSON file
     pub fn save_model(model: &CustomLogisticModel, path: &Path) -> Result<()> {
         if let Some(parent) = path.parent() {
             std::fs::create_dir_all(parent)?;
@@ -95,7 +120,6 @@ impl LogisticPipeline {
         Ok(())
     }
 
-    /// Loads the model from a JSON file
     pub fn load_model(path: &Path) -> Result<CustomLogisticModel> {
         let mut file = File::open(path)
             .with_context(|| format!("Unable to open file with model {:?}", path))?;
@@ -105,7 +129,6 @@ impl LogisticPipeline {
         Ok(model)
     }
 
-    /// Plots a histogram of the calculated probabilities
     pub fn render_probability_plot(
         probabilities: &Array1<f64>,
         output_file: &Path,
@@ -122,15 +145,14 @@ impl LogisticPipeline {
             .margin(15)
             .x_label_area_size(40)
             .y_label_area_size(40)
-            .build_cartesian_2d(0.0..1.0, 0..50)?;
+            .build_cartesian_2d(0.0..1.0, 0..100)?;
 
         chart
             .configure_mesh()
-            .x_desc("Probability (Classification as Good Wine)")
+            .x_desc("Probability (Good Wine)")
             .y_desc("Number of samples")
             .draw()?;
 
-        // Create a histogram of 10 bins
         let mut bins = vec![0; 10];
         for &prob in probabilities.iter() {
             let idx = ((prob * 10.0).floor() as usize).min(9);
