@@ -91,7 +91,7 @@ impl RegressionPipeline {
     /// Loads the model from a JSON file
     pub fn load_model(path: &Path) -> Result<CustomLinearModel> {
         let mut file = File::open(path)
-            .with_context(|| format!("Nedaří se otevřít soubor s modelem {:?}", path))?;
+            .with_context(|| format!("Unable to open file with model {:?}", path))?;
         let mut json_str = String::new();
         file.read_to_string(&mut json_str)?;
         let model: CustomLinearModel = serde_json::from_str(&json_str)?;
