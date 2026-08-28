@@ -1,0 +1,11 @@
+{
+  "gini_features": [
+    2,
+    3,
+    1,
+    0
+  ],
+  "entropy_features": [
+    2
+  ]
+}
