@@ -1,5 +1,5 @@
 use anyhow::Result;
-use eframe::egui;
+use eframe::egui::{self, Color32, RichText};
 use lm_linfa_svm::{SvmEvaluation, SvmPipeline};
 
 fn main() -> Result<()> {
@@ -28,7 +28,7 @@ fn main() -> Result<()> {
     };
 
     let options = eframe::NativeOptions {
-        viewport: egui::ViewportBuilder::default().with_inner_size([700.0, 500.0]),
+        viewport: egui::ViewportBuilder::default().with_inner_size([750.0, 550.0]),
         ..Default::default()
     };
 
@@ -52,12 +52,12 @@ struct SvmGuiApp {
 
 impl eframe::App for SvmGuiApp {
     fn ui(&mut self, ui: &mut egui::Ui, _frame: &mut eframe::Frame) {
-        ui.heading("📊 Linfa SVM Results Dashboard");
+        ui.heading(RichText::new("📊 Linfa SVM Results Dashboard").color(Color32::WHITE));
         ui.separator();
 
         egui::ScrollArea::vertical().show(ui, |ui| {
             // Binary classification
-            ui.collapsing("🔍 Binary SVM Classification", |ui| {
+            ui.collapsing(RichText::new("🔍 Binary SVM Classification").color(Color32::LIGHT_GRAY), |ui| {
                 ui.label(format!("Type: {}", self.bin_eval.model_type));
                 ui.label(format!("Accuracy: {:.2}%", self.bin_eval.accuracy_or_mse));
                 if let Some(mcc) = self.bin_eval.mcc {
@@ -65,13 +65,13 @@ impl eframe::App for SvmGuiApp {
                 }
                 ui.add_space(5.0);
                 ui.label("Confusion Matrix:");
-                ui.monospace(&self.bin_eval.confusion_matrix);
+                ui.monospace(RichText::new(&self.bin_eval.confusion_matrix).color(Color32::WHITE));
             });
 
             ui.add_space(10.0);
 
             // Multi-class classification
-            ui.collapsing("🎯 Multi-Class SVM Classification", |ui| {
+            ui.collapsing(RichText::new("🎯 Multi-Class SVM Classification").color(Color32::LIGHT_GRAY), |ui| {
                 ui.label(format!("Type: {}", self.multi_eval.model_type));
                 ui.label(format!("Accuracy: {:.2}%", self.multi_eval.accuracy_or_mse));
                 if let Some(mcc) = self.multi_eval.mcc {
@@ -79,17 +79,17 @@ impl eframe::App for SvmGuiApp {
                 }
                 ui.add_space(5.0);
                 ui.label("Confusion Matrix:");
-                ui.monospace(&self.multi_eval.confusion_matrix);
+                ui.monospace(RichText::new(&self.multi_eval.confusion_matrix).color(Color32::WHITE));
             });
 
             ui.add_space(10.0);
 
             // Regression
-            ui.collapsing("📈 SVR Regression", |ui| {
+            ui.collapsing(RichText::new("📈 SVR Regression").color(Color32::LIGHT_GRAY), |ui| {
                 ui.label(format!("Mean Squared Error (MSE): {:.6}", self.svr_mse));
                 ui.add_space(5.0);
                 ui.label("Model Details:");
-                ui.monospace(&self.svr_summary);
+                ui.monospace(RichText::new(&self.svr_summary).color(Color32::WHITE));
             });
 
             ui.add_space(15.0);
