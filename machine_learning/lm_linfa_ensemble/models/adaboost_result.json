@@ -1,5 +1,5 @@
 {
-  "algorithm_name": "AdaBoost (depth=2, n_est=50)",
+  "algorithm_name": "AdaBoost (depth=1, n_est=50)",
   "accuracy": 100.0,
   "predictions": [
     0,
