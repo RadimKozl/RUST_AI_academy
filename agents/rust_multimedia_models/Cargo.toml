@@ -1,0 +1,21 @@
+[package]
+name = "rust_multimedia_models"
+version = "0.1.0"
+edition = "2024"
+authors = ["Radim Közl"]
+description = "Base Ollama multimedial model in Rust"
+
+[lib]
+name = "rust_multimedia_models"
+path = "src/lib.rs"
+
+[[bin]]
+name = "rust_multimedia_models"
+path = "src/main.rs"
+
+[dependencies]
+tokio = { version = "1.53", features = ["full"] }
+reqwest = { version = "0.13", features = ["json"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+base64 = "0.23.0"
