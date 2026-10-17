@@ -26,7 +26,7 @@ ollama_tool_use/
 3. Pulled model trained for tool use (e.g., `granite4.2:3b`):
 
 ```bash
-ollama pull mistral:7b
+ollama pull granite4.2:3b
 ```
 
 ## **Dependencies (`Cargo.toml`)**
