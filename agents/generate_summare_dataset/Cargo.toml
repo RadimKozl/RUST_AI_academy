@@ -1,0 +1,22 @@
+[package]
+name = "generate_summare_dataset"
+version = "0.1.0"
+edition = "2024"
+authors = ["Radim Közl"]
+description = "A simple pipeline for generating a synthetic dataset to train a summarization model."
+
+[lib]
+name = "generate_summare_dataset"
+path = "src/lib.rs"
+
+[[bin]]
+name = "generate_summare_dataset"
+path = "src/main.rs"
+
+[dependencies]
+tokio = { version = "1.0", features = ["full"] }
+reqwest = { version = "0.13.5", features = ["json"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+rand = "0.10.3"
+uuid = { version = "1.0", features = ["v4", "serde"] }
