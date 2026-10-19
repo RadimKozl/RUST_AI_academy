@@ -1,8 +1,8 @@
 # Rust Ollama Vision Object Detection Client (`ollama_vlm_object_detection`)
 
-This project serves as a tutorial and practical Rust implementation of **Vision-Language Model (VLM) Object Detection** using local **Ollama** models (such as `qwen3-vl:8b`)[cite: 11].
+This project serves as a tutorial and practical Rust implementation of **Vision-Language Model (VLM) Object Detection** using local **Ollama** models (such as `qwen3-vl:8b`).
 
-It mirrors a Python pipeline that encodes images to Base64, enforces structured JSON responses via Ollama's API parameters (`format: "json"`), processes bounding box coordinates (`x1, y1, x2, y2`), and handles parsed detection schemas[cite: 11].
+It mirrors a Python pipeline that encodes images to Base64, enforces structured JSON responses via Ollama's API parameters (`format: "json"`), processes bounding box coordinates (`x1, y1, x2, y2`), and handles parsed detection schemas.
 
 ---
 
