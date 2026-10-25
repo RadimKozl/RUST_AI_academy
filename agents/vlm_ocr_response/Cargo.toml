@@ -1,0 +1,22 @@
+[package]
+name = "vlm_ocr_response"
+version = "0.1.0"
+edition = "2024"
+authors = ["Radim Közl"]
+description = "Base Ollama vlm for OCR response in RUST"
+
+[lib]
+name = "vlm_ocr_response"
+path = "src/lib.rs"
+
+[[bin]]
+name = "vlm_ocr_response"
+path = "src/main.rs"
+
+[dependencies]
+tokio = { version = "1.53", features = ["full"] }
+reqwest = { version = "0.13", features = ["json"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+base64 = "0.23.0"
+
