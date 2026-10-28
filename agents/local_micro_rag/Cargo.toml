@@ -1,0 +1,27 @@
+[package]
+name = "local_micro_rag"
+version = "0.1.0"
+edition = "2024"
+authors = ["Radim Közl"]
+description = "Base sample of microRAG in Rust"
+
+[lib]
+name = "local_micro_rag"
+path = "src/lib.rs"
+
+[[bin]]
+name = "local_micro_rag"
+path = "src/main.rs"
+
+
+[dependencies]
+tokio = { version = "1.38", features = ["full"] }
+reqwest = { version = "0.13.5", features = ["json"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+rusqlite = { version = "0.41.0", features = ["bundled"] }
+base64 = "0.23.1"
+anyhow = "1.0"
+
+[dev-dependencies]
+tempfile = "3.10"
