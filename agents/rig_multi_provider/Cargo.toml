@@ -3,7 +3,7 @@ name = "rig_multi_provider"
 version = "0.1.0"
 edition = "2024"
 authors = ["Radim Közl"]
-description = "Multi-Provider AI Tutorial v Rustu (Rig Framework)"
+description = "Multi-Provider AI Tutorial in Rustu (Rig Framework)"
 
 [lib]
 name = "rig_multi_provider"
