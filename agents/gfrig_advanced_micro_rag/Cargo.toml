@@ -1,0 +1,34 @@
+[package]
+name = "gfrig_advanced_micro_rag"
+version = "0.1.0"
+edition = "2024"
+authors = ["Radim Kozl"]
+description = "Advanced micro RAG (Rig & graph-flow Framework)"
+
+[lib]
+name = "gfrig_advanced_micro_rag"
+path = "src/lib.rs"
+
+[[bin]]
+name = "gfrig_advanced_micro_rag"
+path = "src/main.rs"
+
+[dependencies]
+rig = "0.46.0"
+graph-flow = "0.8"
+sqlx = { version = "0.9.0", features = ["sqlite", "runtime-tokio", "tls-native-tls", "macros"] }
+tokio = { version = "1.38", features = ["full"] }
+anyhow = "1.0"
+dotenvy = "0.15"
+async-trait = "0.1"
+reqwest = { version = "0.13.5", features = ["json"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+rand = "0.10.3"
+uuid = { version = "1.0", features = ["v4", "serde"] }
+futures = "0.3"
+chrono = "0.4"  
+
+[dev-dependencies]
+tempfile = "3.10"
+
