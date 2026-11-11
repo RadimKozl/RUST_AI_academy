@@ -3,7 +3,7 @@ name = "gfrig_human_loop"
 version = "0.1.0"
 edition = "2024"
 authors = ["Radim Közl"]
-description = "Graph parallel node (Rig & graph-flow Framework)"
+description = "Human loop (Rig & graph-flow Framework)"
 
 [lib]
 name = "gfrig_human_loop"
