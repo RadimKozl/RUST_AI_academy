@@ -1,0 +1,98 @@
+1. Architectural Pillars of the AGON Language
+
+Semantic Type Safety: Messages are not mere strings or loose JSON objects; rather, they are strongly typed Intents and Propositions, each with an associated probability (confidence score). 
+
+Asynchronous Actor Model: Each agent functions as an independent actor possessing its own multi-layered memory structure (short-term memory, reasoning space, and a long-term graph). 
+
+Native Support for MARL (Multi-Agent Reinforcement Learning): The language includes built-in constructs for sharing rewards and global states, as well as for negotiating actions.
+
+2. Key Constructs and Syntax of the AGON Language
+A. Defining Agents and Their Roles
+
+In AGON, every agent declares its capabilities (tools), input/output channels, and memory space.
+Code Snippet
+
+agent Researcher {
+capability: [WebSearch, VectorRAG, LibraryDocs]; 
+memory: GraphMemory {
+persistence: "neo4j://localhost:7687",
+schema: "ResearchGraph"
+}; 
+
+// Behavioral policy (MARL policy)
+policy epsilon_greedy(epsilon: 0.1);
+}
+
+B. Intent-Driven Messaging (Semantic Communication)
+
+Agents do not simply invoke functions on one another; instead, they exchange Intents and Assertions—structures that incorporate built-in context and validation. Code Snippet
+
+// Researcher sends the result to the Coder
+intent ShareFindings {
+target: Coder,
+priority: High,
+payload: {
+equation_syntax: String,
+sympy_params: Map<String, Vector>,
+confidence: Float { min: 0.0, max: 1.0 }
+}
+}
+
+C. Consensus and Negotiation Blocks
+
+For situations where 3 agents within a swarm must agree on the next step, AGON includes a native primitive for consensus (e.g., Raft-like or QMIX-based voting).
+Code Snippet
+
+consensus resolve_task_conflict {
+participants: [Researcher, Coder, Critic],
+strategy: MajorityVoteWithConfidence,
+timeout: 500ms,
+on_timeout: fallback_to_sequential
+}
+
+3. Example of a Complete Script in AGON
+
+The following example defines a collaborative loop between two agents solving a scientific computation:
+Code Snippet
+
+// Shared context for the swarm
+swarm ScientificSwarm {
+agents: [Researcher, Coder],
+shared_memory: GlobalGraphState,
+}
+
+workflow SolveDifferentialEquation {
+state current_state = "init"; 
+
+step 1 {
+// Researcher looks up the syntax in the documentation
+call Researcher.investigate(query: "dy/dx symbolic solution")
+-> response_doc; 
+
+emit ShareFindings(target: Coder, payload: response_doc); 
+}
+
+step 2 (on_receive Coder) {
+// Coder processes the data and performs the exact calculation
+listen payload from Researcher; 
+
+let symbolic_result = execute_math(payload.sympy_params); 
+
+if symbolic_result.is_valid {
+transition_to("complete"); 
+} else {
+reward_update(agent: Coder, value: -0.5); // Penalty for a poor step in MARL
+retry step 1; 
+}
+}
+}
+
+4. Compilation and Runtime (Under the Hood)
+
+To ensure AGON is extremely fast and secure:
+
+The AGON compiler translates code directly into Rust. 
+
+It utilizes the Tokio asynchronous runtime to manage millions of messages between agents without unnecessary allocations. 
+
+Integration with LLM backends is handled via native abstractions (e.g., bindings to the `rig` library or `async-openai`), where the LLM acts as a semantic translator into AGON’s precise structures.
