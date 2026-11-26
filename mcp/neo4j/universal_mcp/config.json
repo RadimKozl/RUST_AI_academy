@@ -1,0 +1,39 @@
+{
+  "mcp_transport": "sse",
+  "read_only": false,
+  "neo4j": {
+    "uri": "${NEO4J_URI:-bolt://localhost:7687}",
+    "username": "${NEO4J_USERNAME:-neo4j}",
+    "password": "${NEO4J_PASSWORD}",
+    "database": "${NEO4J_DATABASE:-neo4j}"
+  },
+  "agent_instructions": "Jsi expertní databázový asistent pro Neo4j. Vždy analyzuj strukturu grafu před složitějšími dotazy a vracej výsledky v přehledném Markdownu.",
+  "resources": [
+    {
+      "uri_pattern": "node://{label}/{id}",
+      "description": "Získat detail uzlu podle Labelu a ID property",
+      "cypher_query": "MATCH (n) WHERE $label IN labels(n) AND (n.id = $id OR n.tmdbId = $id OR n.uid = $id) RETURN properties(n) AS props, labels(n) AS labels"
+    },
+    {
+      "uri_pattern": "node://{label}/{id}/relationships",
+      "description": "Získat všechny příchozí i odchozí vazby uzlu",
+      "cypher_query": "MATCH (n)-[r]-(target) WHERE $label IN labels(n) AND (n.id = $id OR n.tmdbId = $id OR n.uid = $id OR n.name = $id) RETURN type(r) AS rel_type, labels(target) AS target_labels, coalesce(target.name, target.title, target.id) AS target_name, properties(r) AS rel_props"
+    }
+  ],
+  "custom_tools": [
+    {
+      "name": "find_nodes_by_property",
+      "description": "Vyhledá uzly podle Labelu, vlastnosti a hodnoty",
+      "cypher_query": "MATCH (n) WHERE $label IN labels(n) AND n[$property] =~ ('.*' + $value + '.*') RETURN properties(n) AS data LIMIT $limit",
+      "parameters": ["label", "property", "value", "limit"],
+      "write": false
+    }
+  ],
+  "prompts": [
+    {
+      "name": "analyze_graph_schema",
+      "description": "Iniciační prompt pro analýzu schéma databáze",
+      "template": "Proveď analýzu databáze. Zjisti dostupné Labeli, typy relací a spočítej celkový počet uzlů."
+    }
+  ]
+}
